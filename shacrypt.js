@@ -41,6 +41,7 @@ function validate(prefix, password, salt, rounds) {
  * @param  {String} password
  * @param  {String} [salt]
  * @param  {Number} [rounds]
+ * @param  {Function} [callback]
  * @return {String}
  */
 exports.sha256crypt = function(password, salt, rounds, callback) {
@@ -60,6 +61,7 @@ exports.sha256crypt = function(password, salt, rounds, callback) {
  * @param  {String} password
  * @param  {String} [salt]
  * @param  {Number} [rounds]
+ * @param  {Function} [callback]
  * @return {String}
  */
 exports.sha512crypt = function(password, salt, rounds, callback) {
