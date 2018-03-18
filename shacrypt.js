@@ -43,11 +43,15 @@ function validate(prefix, password, salt, rounds) {
  * @param  {Number} [rounds]
  * @return {String}
  */
-exports.sha256crypt = function(password, salt, rounds) {
+exports.sha256crypt = function(password, salt, rounds, callback) {
 
 	salt = validate('$5$', password, salt, rounds);
 
-	return shacrypt.sha256crypt(password, salt);
+        if (typeof callback === "function") {
+          shacrypt.sha256cryptasync(password, salt, callback);
+        } else {
+          return shacrypt.sha256crypt(password, salt);
+        }
 };
 
 /**
@@ -58,9 +62,13 @@ exports.sha256crypt = function(password, salt, rounds) {
  * @param  {Number} [rounds]
  * @return {String}
  */
-exports.sha512crypt = function(password, salt, rounds) {
+exports.sha512crypt = function(password, salt, rounds, callback) {
 
 	salt = validate('$6$', password, salt, rounds);
 
-	return shacrypt.sha512crypt(password, salt);
+        if (typeof callback === "function") {
+          shacrypt.sha512cryptasync(password, salt, callback);
+        } else {
+          return shacrypt.sha512crypt(password, salt);
+        }
 };

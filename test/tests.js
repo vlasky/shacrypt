@@ -79,3 +79,21 @@ tests512.forEach(function(test) {
         shacrypt.sha512crypt(test[1], test[0]).should.be.eql(test[2]);
     });
 });
+
+tests256.forEach(function(test) {
+    it(test[1], function(done) {
+        shacrypt.sha256crypt(test[1], test[0], undefined, function(error, result) {
+          result.should.be.eql(test[2]);
+          done();
+        });
+    });
+});
+
+tests512.forEach(function(test) {
+    it(test[1], function(done) {
+        shacrypt.sha512crypt(test[1], test[0], undefined, function(error, result) {
+          result.should.be.eql(test[2]);
+          done();
+        });
+    });
+});
