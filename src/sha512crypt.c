@@ -1,11 +1,7 @@
 /* SHA512-based Unix crypt implementation.
    Released into the Public Domain by Ulrich Drepper <drepper@redhat.com>.  */
 
-#ifdef __APPLE__
-  #include <machine/endian.h>
-#else
-  #include <endian.h>
-#endif
+#include "portable_endian.h"
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
