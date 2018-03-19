@@ -9,8 +9,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__WINDOWS__)
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define __attribute__(A) /* do nothing */
+#define __alignof__ __alignof
+#include <malloc.h>
+#include "stpncpy.h"
+#else
 #include <sys/param.h>
 #include <sys/types.h>
+#endif
 
 
 /* Structure to save state of computation between the single steps.  */
@@ -95,7 +104,7 @@ static const uint64_t K[80] =
 static void
 sha512_process_block (const void *buffer, size_t len, struct sha512_ctx *ctx)
 {
-  const uint64_t *words = buffer;
+  const uint64_t *words = (uint64_t *)buffer;
   size_t nwords = len / sizeof (uint64_t);
   uint64_t a = ctx->H[0];
   uint64_t b = ctx->H[1];
@@ -337,7 +346,7 @@ static const char sha512_rounds_prefix[] = "rounds=";
 #define ROUNDS_MAX 999999999
 
 /* Table with characters for base64 transformation.  */
-static const char b64t[64] =
+static const char b64t[] =
 "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 
@@ -388,7 +397,7 @@ sha512_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   if ((key - (char *) 0) % __alignof__ (uint64_t) != 0)
     {
       char *tmp = (char *) alloca (key_len + __alignof__ (uint64_t));
-      key = copied_key =
+      key = copied_key = (char *)
 	memcpy (tmp + __alignof__ (uint64_t)
 		- (tmp - (char *) 0) % __alignof__ (uint64_t),
 		key, key_len);
@@ -397,7 +406,7 @@ sha512_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   if ((salt - (char *) 0) % __alignof__ (uint64_t) != 0)
     {
       char *tmp = (char *) alloca (salt_len + __alignof__ (uint64_t));
-      salt = copied_salt =
+      salt = copied_salt = (char *)
 	memcpy (tmp + __alignof__ (uint64_t)
 		- (tmp - (char *) 0) % __alignof__ (uint64_t),
 		salt, salt_len);
@@ -459,7 +468,7 @@ sha512_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   sha512_finish_ctx (&alt_ctx, temp_result);
 
   /* Create byte sequence P.  */
-  cp = p_bytes = alloca (key_len);
+  cp = p_bytes = (char *) alloca (key_len);
   for (cnt = key_len; cnt >= 64; cnt -= 64){
     memcpy (cp, temp_result, 64);
     cp += 64;
@@ -477,7 +486,7 @@ sha512_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   sha512_finish_ctx (&alt_ctx, temp_result);
 
   /* Create byte sequence S.  */
-  cp = s_bytes = alloca (salt_len);
+  cp = s_bytes = (char *) alloca (salt_len);
   for (cnt = salt_len; cnt >= 64; cnt -= 64){
     memcpy (cp, temp_result, 64);
     cp += 64;
