@@ -2,7 +2,11 @@
 
 # shacrypt
 
-shacrypt is a simple enough wrapper over sha256-crypt and sha512-crypt functions originally created by Ulrich Drepper. See <http://www.akkadia.org/drepper/SHA-crypt.txt>
+shacrypt provides cross-platform support for SHA-256 crypt and SHA-512 crypt in Node.js. It does not use the Node.js crypto API. Instead, it is implemented as a wrapper around the C implementation programmed by Ulrich Drepper. See <http://www.akkadia.org/drepper/SHA-crypt.txt>
+
+shacrypt provides two funtions sha256crypt() and sha512crypt() that can be used both synchronously and asynchronously via callbacks.
+
+Asynchronous mode is especially useful in that computation is performed in Node.js's libuv thread pool. This avoids blocking the event loop which results in better app performance. As per Node.js convention, the callback function is provided as the final argument with the signature function(error, result).
 
 ### Installation
 
@@ -20,7 +24,7 @@ npm install shacrypt
 
 	```javascript
 	var hash = shacrypt.sha256crypt('super password');
-// hash = $5$rounds=5000$3a1afb28e54a0391$0d6RupbpABtxCaH8WWOemYwEcToDVZXX/tHpIy6O1U3
+	// hash = $5$rounds=5000$3a1afb28e54a0391$0d6RupbpABtxCaH8WWOemYwEcToDVZXX/tHpIy6O1U3
 	```
 * Validate password:
 
