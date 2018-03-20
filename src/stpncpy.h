@@ -1,6 +1,6 @@
 /* Copy no more than N characters of SRC to DEST, returning the address of
    the terminating '\0' in DEST, if any, or else DEST + N.  */
-char *stpncpy (char *dest, const char *src, size_t n)
+static char *stpncpy (char *dest, const char *src, size_t n)
 {
   char c;
   char *s = dest;
