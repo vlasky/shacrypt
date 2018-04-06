@@ -11,8 +11,10 @@ Asynchronous mode is especially useful in that computation is performed in Node.
 ### Installation
 
 ```
-npm install shacrypt
+npm install vlasky/shacrypt
 ```
+
+NOTE: You will need to have C++ build tools installed on your system to successfully install the package. If you are running under Windows, you can download Microsoft's [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017).
 
 ### Usage
 * Prerequisite
@@ -48,6 +50,7 @@ npm install shacrypt
 
 ## Authors
 
+* Vlad Lasky [https://github.com/vlasky](https://github.com/vlasky)
 * Oleksiy Krivoshey [https://github.com/oleksiyk](https://github.com/oleksiyk)
 * Original C code by Ulrich Drepper: <http://www.akkadia.org/drepper/SHA-crypt.txt>
 
