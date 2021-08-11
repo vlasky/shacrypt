@@ -4,7 +4,7 @@
 
 shacrypt provides cross-platform support for SHA-256 crypt and SHA-512 crypt in Node.js. It does not use the Node.js crypto API. Instead, it is implemented as a Node.js addon that wraps around the [C implementation programmed by Ulrich Drepper](http://www.akkadia.org/drepper/SHA-crypt.txt). This provides significantly increased performance.
 
-shacrypt provides two functions `sha256crypt()` and `sha512crypt()` that can be used both synchronously and asynchronously via callbacks.
+shacrypt provides three functions `sha256crypt()/sha256cryptAsync()`, `sha512crypt()/sha512cryptAsync()` and `verify`.
 
 Asynchronous mode is especially useful in that computation is performed in Node.js's libuv thread pool. This avoids blocking the event loop which results in better app responsiveness. As per Node.js convention, the callback function is provided as the final argument with the signature `function(error, result){}`.
 
