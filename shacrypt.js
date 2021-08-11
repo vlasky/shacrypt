@@ -35,26 +35,26 @@ function validate (prefix, password, salt, rounds) {
 }
 
 function timingSafeEqual (a, b, encoding = 'utf8') {
-  const x = Buffer.from(a, encoding);
-  const y = Buffer.from(b, encoding);
+	const x = Buffer.from(a, encoding);
+	const y = Buffer.from(b, encoding);
 
-  if (x.length !== y.length) {
-    return false;
-  }
+	if (x.length !== y.length) {
+		return false;
+	}
 
-  return crypto.timingSafeEqual(x, y);
+	return crypto.timingSafeEqual(x, y);
 }
 
 function extract (hashString) {
 	const segments = hashString.split('$');
 	const prefix = segments[1];
 	let rounds = segments[2];
-  let salt = segments[3];
+	let salt = segments[3];
 	let hash = segments[4];
 
 	if (typeof salt !== 'string') {
-    throw new Error('Unexpected salt value');
-  }
+		throw new Error('Unexpected salt value');
+	}
 
 	if (typeof rounds === 'string' && /^rounds=\d+$/.test(rounds)) {
 		rounds = parseInt(rounds.split('=').pop());
@@ -62,11 +62,11 @@ function extract (hashString) {
 		if (isNaN(rounds)) {
 			rounds = null;
 		}
-  } else {
+	} else {
 		hash = salt;
 		salt = rounds;
 		rounds = null;
-  }
+	}
 
 	return {
 		prefix: prefix,
