@@ -1,7 +1,7 @@
 {
   "name": "@vlasky/shacrypt",
   "description": "Wrapper over sha256-crypt and sha512-crypt functions originally created by Ulrich Drepper https://www.akkadia.org/drepper/SHA-crypt.txt",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "homepage": "https://github.com/vlasky/shacrypt",
   "author": "Vlad Lasky <github@vladlasky.com> (https://github.com/vlasky/)",
   "contributors": [
@@ -9,17 +9,18 @@
   ],
   "main": "shacrypt",
   "scripts": {
+    "install": "node-gyp rebuild",
     "test": "make test"
   },
   "dependencies": {
-    "nan": "^2.14.0"
+    "nan": "^2.22.2"
   },
   "devDependencies": {
-      "mocha": "~=2.3.4",
-      "chai": "~=3.4.1"
+      "mocha": "^10.8.2",
+      "chai": "^4.5.0"
   },
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 16.0.0"
   },
   "bugs": {
     "url": "https://github.com/vlasky/shacrypt/issues"

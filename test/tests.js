@@ -97,3 +97,52 @@ tests512.forEach(function(test) {
         });
     });
 });
+
+describe('Input validation', function() {
+    it('should throw error for non-string password in sha256crypt', function() {
+        expect(function() {
+            shacrypt.sha256crypt(123, 'salt');
+        }).to.throw('password must be a String');
+    });
+
+    it('should throw error for non-string password in sha512crypt', function() {
+        expect(function() {
+            shacrypt.sha512crypt(null, 'salt');
+        }).to.throw('password must be a String');
+    });
+
+    it('should handle missing password gracefully', function() {
+        expect(function() {
+            shacrypt.sha256crypt();
+        }).to.throw('password must be a String');
+    });
+
+    it('should generate salt when not provided', function() {
+        var result = shacrypt.sha256crypt('password');
+        result.should.match(/^\$5\$/);
+    });
+
+    it('should handle async callback errors for invalid password', function(done) {
+        try {
+            shacrypt.sha256crypt(123, 'salt', function(err, result) {
+                // This callback should not be called
+                done(new Error('Expected synchronous error'));
+            });
+        } catch (e) {
+            e.message.should.equal('password must be a String');
+            done();
+        }
+    });
+
+    it('should handle async callback errors for invalid password in sha512', function(done) {
+        try {
+            shacrypt.sha512crypt(undefined, 'salt', function(err, result) {
+                // This callback should not be called
+                done(new Error('Expected synchronous error'));
+            });
+        } catch (e) {
+            e.message.should.equal('password must be a String');
+            done();
+        }
+    });
+});

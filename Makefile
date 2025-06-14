@@ -9,7 +9,7 @@ shacrypt: node_modules src/*
 # Tests
 #
 test: shacrypt
-	@mocha
+	@./node_modules/.bin/mocha
 
 
 #

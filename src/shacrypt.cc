@@ -19,17 +19,49 @@ using Nan::Null;
 using Nan::To;
 
 NAN_METHOD(sha256crypt) {
+  if (info.Length() < 2) {
+    Nan::ThrowError("Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsString() || !info[1]->IsString()) {
+    Nan::ThrowTypeError("Arguments must be strings");
+    return;
+  }
+
   Nan::Utf8String key(info[0]);
   Nan::Utf8String salt(info[1]);
 
-  info.GetReturnValue().Set(Nan::New(sha256_crypt(*key, *salt)).ToLocalChecked());
+  const char* result = sha256_crypt(*key, *salt);
+  if (!result) {
+    Nan::ThrowError("sha256_crypt failed");
+    return;
+  }
+
+  info.GetReturnValue().Set(Nan::New(result).ToLocalChecked());
 }
 
 NAN_METHOD(sha512crypt) {
+  if (info.Length() < 2) {
+    Nan::ThrowError("Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsString() || !info[1]->IsString()) {
+    Nan::ThrowTypeError("Arguments must be strings");
+    return;
+  }
+
   Nan::Utf8String key(info[0]);
   Nan::Utf8String salt(info[1]);
 
-  info.GetReturnValue().Set(Nan::New(sha512_crypt(*key, *salt)).ToLocalChecked());
+  const char* result = sha512_crypt(*key, *salt);
+  if (!result) {
+    Nan::ThrowError("sha512_crypt failed");
+    return;
+  }
+
+  info.GetReturnValue().Set(Nan::New(result).ToLocalChecked());
 }
 
 
@@ -40,7 +72,12 @@ class SHA256CryptWorker : public AsyncWorker {
     }
 
     void Execute() {
-      result = sha256_crypt(key.c_str(), salt.c_str());
+      const char* crypt_result = sha256_crypt(key.c_str(), salt.c_str());
+      if (!crypt_result) {
+        SetErrorMessage("sha256_crypt failed");
+        return;
+      }
+      result = crypt_result;
     }
 
     void HandleOKCallback() {
@@ -61,7 +98,12 @@ class SHA512CryptWorker : public AsyncWorker {
     }
 
     void Execute() {
-      result = sha512_crypt(key.c_str(), salt.c_str());
+      const char* crypt_result = sha512_crypt(key.c_str(), salt.c_str());
+      if (!crypt_result) {
+        SetErrorMessage("sha512_crypt failed");
+        return;
+      }
+      result = crypt_result;
     }
 
     void HandleOKCallback() {
@@ -76,6 +118,21 @@ class SHA512CryptWorker : public AsyncWorker {
 };
 
 NAN_METHOD(sha256cryptasync) {
+  if (info.Length() < 3) {
+    Nan::ThrowError("Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsString() || !info[1]->IsString()) {
+    Nan::ThrowTypeError("First two arguments must be strings");
+    return;
+  }
+
+  if (!info[2]->IsFunction()) {
+    Nan::ThrowTypeError("Third argument must be a function");
+    return;
+  }
+
   Nan::Utf8String key(info[0]);
   Nan::Utf8String salt(info[1]);
 
@@ -84,6 +141,21 @@ NAN_METHOD(sha256cryptasync) {
 }
 
 NAN_METHOD(sha512cryptasync) {
+  if (info.Length() < 3) {
+    Nan::ThrowError("Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsString() || !info[1]->IsString()) {
+    Nan::ThrowTypeError("First two arguments must be strings");
+    return;
+  }
+
+  if (!info[2]->IsFunction()) {
+    Nan::ThrowTypeError("Third argument must be a function");
+    return;
+  }
+
   Nan::Utf8String key(info[0]);
   Nan::Utf8String salt(info[1]);
 
@@ -103,6 +175,7 @@ NAN_MODULE_INIT(init) {
   Nan::Set(target, Nan::New("sha512cryptasync").ToLocalChecked(),
     Nan::GetFunction(Nan::New<FunctionTemplate>(sha512cryptasync)).ToLocalChecked());
 }
+
 
 NODE_MODULE(shacrypt, init);
 
