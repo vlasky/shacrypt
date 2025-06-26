@@ -1,20 +1,24 @@
 "use strict";
 
-var shacrypt = require('./build/Release/shacrypt');
-var crypto   = require('crypto');
+const shacrypt = require('./build/Release/shacrypt');
+const crypto   = require('crypto');
+const util     = require('util');
 
-var isString = function(obj) {
-	return Object.prototype.toString.call(obj) == '[object String]';
+const sha256cryptAsync = util.promisify(shacrypt.sha256cryptasync);
+const sha512cryptAsync = util.promisify(shacrypt.sha512cryptasync);
+
+const isString = (obj) => {
+	return Object.prototype.toString.call(obj) === '[object String]';
 };
 
-var isNumber = function(obj) {
-	return Object.prototype.toString.call(obj) == '[object Number]';
+const isNumber = (obj) => {
+	return Object.prototype.toString.call(obj) === '[object Number]';
 };
 
 function validate(prefix, password, salt, rounds) {
 
-	var _salt = salt,
-		_rounds = rounds || 5000;
+	const _rounds = rounds || 5000;
+	let _salt = salt;
 
 	if (!isString(password)) {
 		throw new Error('password must be a String');
@@ -24,12 +28,12 @@ function validate(prefix, password, salt, rounds) {
 		_salt = crypto.randomBytes(16).toString('hex');
 
 		if (isNumber(salt)) {
-			_salt = prefix + 'rounds=' + salt + '$' + _salt;
+			_salt = `${prefix}rounds=${salt}$${_salt}`;
 		}
 	}
 
-	if (isNumber(_rounds) && _salt.indexOf(prefix) == -1) {
-		_salt = prefix + 'rounds=' + _rounds + '$' + _salt;
+	if (isNumber(_rounds) && _salt.indexOf(prefix) === -1) {
+		_salt = `${prefix}rounds=${_rounds}$${_salt}`;
 	}
 
 	return _salt;
@@ -73,4 +77,34 @@ exports.sha512crypt = function(password, salt, rounds, callback) {
         } else {
           return shacrypt.sha512crypt(password, salt);
         }
+};
+
+/**
+ * Generate SHA256-CRYPT hash (async/await compatible)
+ *
+ * @param  {String} password
+ * @param  {String} [salt]
+ * @param  {Number} [rounds]
+ * @return {Promise<String>}
+ */
+exports.sha256cryptAsync = async function(password, salt, rounds) {
+
+	salt = validate('$5$', password, salt, rounds);
+
+	return sha256cryptAsync(password, salt);
+};
+
+/**
+ * Generate SHA512-CRYPT hash (async/await compatible)
+ *
+ * @param  {String} password
+ * @param  {String} [salt]
+ * @param  {Number} [rounds]
+ * @return {Promise<String>}
+ */
+exports.sha512cryptAsync = async function(password, salt, rounds) {
+
+	salt = validate('$6$', password, salt, rounds);
+
+	return sha512cryptAsync(password, salt);
 };

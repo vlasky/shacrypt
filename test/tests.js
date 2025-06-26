@@ -2,9 +2,9 @@
 
 /* global it  */
 
-var shacrypt = require('../shacrypt');
+const shacrypt = require('../shacrypt');
 
-var tests256 = [
+const tests256 = [
     ["$5$saltstring", "Hello world!",
         "$5$saltstring$5B8vYYiY.CVt1RlTTf8KbXBH3hsxY/GNooZaBBGWEc5"
     ],
@@ -36,7 +36,7 @@ var tests256 = [
     ],
 ];
 
-var tests512 = [
+const tests512 = [
     ["$6$saltstring", "Hello world!",
         "$6$saltstring$svn8UoSVapNtMuq1ukKS4tPQd8iKwSMHWjl/O817G3uBnIFNjnQJuesI68u4OTLiBFdcbYEdFCoEOfaS35inz1"
     ],
@@ -98,6 +98,22 @@ tests512.forEach(function(test) {
     });
 });
 
+describe('Async/await functions', function() {
+    tests256.forEach(function(test) {
+        it(test[1] + ' (async/await)', async function() {
+            const result = await shacrypt.sha256cryptAsync(test[1], test[0]);
+            result.should.be.eql(test[2]);
+        });
+    });
+
+    tests512.forEach(function(test) {
+        it(test[1] + ' (async/await)', async function() {
+            const result = await shacrypt.sha512cryptAsync(test[1], test[0]);
+            result.should.be.eql(test[2]);
+        });
+    });
+});
+
 describe('Input validation', function() {
     it('should throw error for non-string password in sha256crypt', function() {
         expect(function() {
@@ -144,5 +160,33 @@ describe('Input validation', function() {
             e.message.should.equal('password must be a String');
             done();
         }
+    });
+
+    it('should reject with error for non-string password in sha256cryptAsync', async function() {
+        try {
+            await shacrypt.sha256cryptAsync(123, 'salt');
+            throw new Error('Expected error to be thrown');
+        } catch (e) {
+            e.message.should.equal('password must be a String');
+        }
+    });
+
+    it('should reject with error for non-string password in sha512cryptAsync', async function() {
+        try {
+            await shacrypt.sha512cryptAsync(null, 'salt');
+            throw new Error('Expected error to be thrown');
+        } catch (e) {
+            e.message.should.equal('password must be a String');
+        }
+    });
+
+    it('should generate salt when not provided in sha256cryptAsync', async function() {
+        const result = await shacrypt.sha256cryptAsync('password');
+        result.should.match(/^\$5\$/);
+    });
+
+    it('should generate salt when not provided in sha512cryptAsync', async function() {
+        const result = await shacrypt.sha512cryptAsync('password');
+        result.should.match(/^\$6\$/);
     });
 });

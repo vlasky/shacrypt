@@ -1,7 +1,7 @@
 {
   "name": "@vlasky/shacrypt",
-  "description": "Wrapper over sha256-crypt and sha512-crypt functions originally created by Ulrich Drepper https://www.akkadia.org/drepper/SHA-crypt.txt",
-  "version": "0.3.0",
+  "description": "Node.js wrapper over sha256-crypt and sha512-crypt functions originally created by Ulrich Drepper https://www.akkadia.org/drepper/SHA-crypt.txt",
+  "version": "0.4.0",
   "homepage": "https://github.com/vlasky/shacrypt",
   "author": "Vlad Lasky <github@vladlasky.com> (https://github.com/vlasky/)",
   "contributors": [
