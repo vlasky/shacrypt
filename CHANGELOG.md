@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0] - 2026-01-28
+
+### Changed
+- **Breaking:** Minimum Node.js version is now 18.0.0
+- Updated NAN to 2.25.0 for Node.js 25 compatibility
+- Updated mocha to 11.3.0 and chai to 6.2.2
+- Replaced `NODE_MODULE` with `NAN_MODULE_WORKER_ENABLED` for proper module registration
+- Fixed null pointer subtraction warnings in sha256crypt.c and sha512crypt.c using `uintptr_t`
+
+### Added
+- Support for Node.js 25
+
 ## [0.4.0] - 2025-06-27
 
 ### Added

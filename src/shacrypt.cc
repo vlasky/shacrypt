@@ -177,5 +177,5 @@ NAN_MODULE_INIT(init) {
 }
 
 
-NODE_MODULE(shacrypt, init);
+NAN_MODULE_WORKER_ENABLED(shacrypt, init)
 
