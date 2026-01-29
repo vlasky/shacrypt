@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] - 2026-01-29
+
+### Added
+- TypeScript type declarations (`index.d.ts`)
+
 ## [0.5.0] - 2026-01-28
 
 ### Changed
