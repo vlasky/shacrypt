@@ -1,8 +1,11 @@
 # Builds prebuilt binaries for every supported platform and, on a version tag,
-# publishes the package with them bundled. Publishing uses npm trusted
-# publishing (OIDC): no token is stored; the package's Trusted Publisher
-# settings on npmjs.com must name this repository and this workflow file.
-name: Prebuild and publish
+# stages the package with them bundled on npm. It uses npm trusted publishing
+# (OIDC): no token is stored; the package's Trusted Publisher settings on
+# npmjs.com must name this repository and this workflow file. The staged
+# version is not public until a maintainer approves it, with 2FA:
+#   npm stage list @vlasky/shacrypt
+#   npm stage approve <stage-id>
+name: Prebuild and stage release
 
 on:
   push:
@@ -40,8 +43,8 @@ jobs:
           path: prebuilds/
           if-no-files-found: error
 
-  publish:
-    name: Publish to npm
+  stage:
+    name: Stage release on npm
     needs: prebuild
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
@@ -64,4 +67,4 @@ jobs:
         run: find prebuilds -type f
       - run: npm ci --ignore-scripts
       - run: npm --version
-      - run: npm publish --provenance --access public
+      - run: npm stage publish --provenance --access public
