@@ -1,6 +1,7 @@
 # Builds prebuilt binaries for every supported platform and, on a version tag,
-# publishes the package with them bundled. Publishing needs an NPM_TOKEN
-# repository secret with publish rights to @vlasky/shacrypt.
+# publishes the package with them bundled. Publishing uses npm trusted
+# publishing (OIDC): no token is stored; the package's Trusted Publisher
+# settings on npmjs.com must name this repository and this workflow file.
 name: Prebuild and publish
 
 on:
@@ -51,7 +52,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Trusted publishing needs npm 11.5.1 or newer; Node 24 ships npm 11.
+          node-version: 24
           registry-url: https://registry.npmjs.org
       - uses: actions/download-artifact@v4
         with:
@@ -61,6 +63,5 @@ jobs:
       - name: List bundled prebuilds
         run: find prebuilds -type f
       - run: npm ci --ignore-scripts
+      - run: npm --version
       - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
