@@ -1,5 +1,9 @@
 # shacrypt
 
+[![npm version](https://img.shields.io/npm/v/@vlasky/shacrypt)](https://www.npmjs.com/package/@vlasky/shacrypt)
+[![npm downloads](https://img.shields.io/npm/dm/@vlasky/shacrypt)](https://www.npmjs.com/package/@vlasky/shacrypt)
+[![node version](https://img.shields.io/node/v/@vlasky/shacrypt)](https://nodejs.org/)
+[![license](https://img.shields.io/npm/l/@vlasky/shacrypt)](LICENSE)
 [![CI](https://github.com/vlasky/shacrypt/actions/workflows/ci.yml/badge.svg)](https://github.com/vlasky/shacrypt/actions/workflows/ci.yml)
 
 shacrypt provides SHA-256 crypt (`$5$`) and SHA-512 crypt (`$6$`) password hashing for Node.js, compatible with `crypt(3)` on Linux and the other Unix systems that use these schemes in `/etc/shadow`. The hashing itself is done by a native addon built around [Ulrich Drepper's reference C implementation](https://www.akkadia.org/drepper/SHA-crypt.txt), which is considerably faster than a JavaScript implementation. Salt generation and constant-time comparison use Node's own `crypto` module.
@@ -139,7 +143,8 @@ npm run prebuildify   # produces a prebuilt binary under prebuilds/
 
 ## License (MIT)
 
-Copyright (c) 2013-2015 Oleksiy Krivoshey.
+Copyright (c) 2013-2016 Oleksiy Krivoshey.  
+Copyright (c) 2018-2026 Vlad Lasky.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
