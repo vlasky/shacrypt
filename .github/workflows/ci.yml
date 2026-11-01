@@ -12,7 +12,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # windows-2022 rather than windows-latest: the newer image ships Visual
+        # Studio 2026, which the node-gyp bundled with Node 18 to 22 cannot find.
+        os: [ubuntu-latest, macos-latest, windows-2022]
         node: [18, 20, 22, 24]
     steps:
       - uses: actions/checkout@v4

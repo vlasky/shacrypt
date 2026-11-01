@@ -20,7 +20,7 @@ jobs:
           - ubuntu-24.04-arm   # linux-arm64
           - macos-15-intel     # darwin-x64
           - macos-latest       # darwin-arm64
-          - windows-latest     # win32-x64
+          - windows-2022       # win32-x64 (windows-latest has VS 2026, unknown to older node-gyp)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
