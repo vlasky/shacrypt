@@ -55,6 +55,10 @@
     "mocha": "^11.8.0",
     "prebuildify": "^6.0.1"
   },
+  "overrides": {
+    "glob": "^14.0.3",
+    "minimatch": "^11.0.3"
+  },
   "engines": {
     "node": ">= 18.0.0"
   },
