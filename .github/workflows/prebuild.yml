@@ -46,7 +46,9 @@ jobs:
   stage:
     name: Stage release on npm
     needs: prebuild
-    if: startsWith(github.ref, 'refs/tags/v')
+    # Runs for version tags, and for manual dispatch so the staging step can
+    # be exercised without cutting a tag.
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,4 +70,4 @@ jobs:
         run: find prebuilds -type f
       - run: npm ci --ignore-scripts
       - run: npm --version
-      - run: npm stage publish --provenance --access public
+      - run: npm stage publish --provenance --access public --loglevel verbose
