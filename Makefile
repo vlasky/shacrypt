@@ -6,6 +6,9 @@ node_modules: package.json
 build: node_modules
 	npm run build
 
+lint: node_modules
+	npm run lint
+
 test: build
 	node --test test/tests.js test/esm.mjs
 
@@ -15,4 +18,4 @@ clean:
 distclean: clean
 	rm -rf node_modules
 
-.PHONY: all build test clean distclean
+.PHONY: all build lint test clean distclean

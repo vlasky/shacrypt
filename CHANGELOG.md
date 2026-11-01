@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- `npm run lint`: ESLint (recommended rules) and TypeScript `checkJs` in strict mode over the JavaScript, driven by JSDoc type annotations in `shacrypt.js`. Runs as its own CI job.
+
 ### Changed
 - Tests run on Node's built-in `node:test` runner instead of Mocha. Mocha was the only remaining development dependency with open security advisories; the test suite itself is unchanged.
 

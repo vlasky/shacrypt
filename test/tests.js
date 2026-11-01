@@ -43,13 +43,25 @@ const vectors512 = [
     '$6$rounds=1000$roundstoolow$kUMsbe306n21p9R.FRkW3IGn.S9NPN0x50YhH1xhLsPuWGsUSklZt58jaTfF4ZEQpyUNGc0dqbpBYYBaHHrsX.'],
 ];
 
+/**
+ * The two algorithms under test. `sync` and `promise` are typed loosely because
+ * many tests call them with deliberately invalid arguments.
+ * @typedef {(...args: any[]) => any} Loose
+ * @type {{ name: string, prefix: string, escaped: string, vectors: string[][], sync: Loose, promise: Loose, hashLength: number }[]}
+ */
 const algorithms = [
   { name: 'sha256', prefix: '$5$', escaped: '\\$5\\$', vectors: vectors256, sync: sha256crypt, promise: sha256cryptAsync, hashLength: 43 },
   { name: 'sha512', prefix: '$6$', escaped: '\\$6\\$', vectors: vectors512, sync: sha512crypt, promise: sha512cryptAsync, hashLength: 86 },
 ];
 
+/**
+ * Calls a callback-style function and resolves with its result.
+ * @param {Loose} fn
+ * @param {...any} args
+ * @returns {Promise<any>}
+ */
 const fromCallback = (fn, ...args) => new Promise((resolve, reject) => {
-  fn(...args, (error, result) => (error ? reject(error) : resolve(result)));
+  fn(...args, (/** @type {Error | null} */ error, /** @type {any} */ result) => (error ? reject(error) : resolve(result)));
 });
 
 for (const algo of algorithms) {
@@ -296,7 +308,9 @@ describe('verify', function () {
   });
 
   it('throws for a non-string password or hash', function () {
+    // @ts-expect-error deliberate misuse
     assert.throws(() => verify(123, hash256), TypeError);
+    // @ts-expect-error deliberate misuse
     assert.throws(() => verify('correct horse', 123), TypeError);
   });
 
@@ -325,6 +339,7 @@ describe('verify', function () {
     assert.throws(() => verify('correct horse', hash256, { maxRounds: 999 }), RangeError);
     assert.throws(() => verify('correct horse', sha256crypt('x', '$5$rounds=2000$salt'), { maxRounds: 1000 }), RangeError);
     assert.throws(() => verify('correct horse', plain256, { maxRounds: 4999 }), RangeError);
+    // @ts-expect-error deliberate misuse
     assert.throws(() => verify('correct horse', hash256, { maxRounds: 'lots' }), TypeError);
   });
 

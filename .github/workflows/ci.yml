@@ -6,6 +6,19 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    name: Lint (ESLint and TypeScript checkJs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # ESLint 10 needs Node 20.19+, so linting runs once here rather than
+          # inside the test matrix, which includes Node 18.
+          node-version: 22
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+
   test:
     name: Node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
