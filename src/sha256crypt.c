@@ -9,13 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "sha256crypt.h"
+#include "secure_wipe.h"
 
 #if defined(__WINDOWS__)
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define __attribute__(A) /* do nothing */
 #define __alignof__ __alignof
-#include <malloc.h>
 #include "stpncpy.h"
 #else
 #include <sys/param.h>
@@ -320,7 +321,7 @@ static const char b64t[] =
 "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 
-static char *
+char *
 sha256_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
 {
   unsigned char alt_result[32]
@@ -364,23 +365,27 @@ sha256_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   salt_len = MIN (strcspn (salt, "$"), SALT_LEN_MAX);
   key_len = strlen (key);
 
-  if ((uintptr_t)key % __alignof__ (uint32_t) != 0)
+  /* The reference implementation kept every working copy on the stack with
+     alloca(), which overflows the stack for long keys and gives no error
+     path.  Allocate them on the heap instead: malloc() memory is always
+     suitably aligned, so the alignment fix-ups are no longer needed.  All
+     four buffers are wiped and freed before returning.  */
+  copied_key = (char *) malloc (key_len + 1);
+  copied_salt = (char *) malloc (salt_len + 1);
+  p_bytes = (char *) malloc (key_len + 1);
+  s_bytes = (char *) malloc (salt_len + 1);
+  if (copied_key == NULL || copied_salt == NULL
+      || p_bytes == NULL || s_bytes == NULL)
     {
-      char *tmp = (char *) alloca (key_len + __alignof__ (uint32_t));
-      key = copied_key = (char *)
-	memcpy (tmp + __alignof__ (uint32_t)
-		- (uintptr_t)tmp % __alignof__ (uint32_t),
-		key, key_len);
+      free (copied_key);
+      free (copied_salt);
+      free (p_bytes);
+      free (s_bytes);
+      errno = ENOMEM;
+      return NULL;
     }
-
-  if ((uintptr_t)salt % __alignof__ (uint32_t) != 0)
-    {
-      char *tmp = (char *) alloca (salt_len + __alignof__ (uint32_t));
-      salt = copied_salt = (char *)
-	memcpy (tmp + __alignof__ (uint32_t)
-		- (uintptr_t)tmp % __alignof__ (uint32_t),
-		salt, salt_len);
-    }
+  key = (char *) memcpy (copied_key, key, key_len);
+  salt = (char *) memcpy (copied_salt, salt, salt_len);
 
   /* Prepare for the real work.  */
   sha256_init_ctx (&ctx);
@@ -438,7 +443,7 @@ sha256_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   sha256_finish_ctx (&alt_ctx, temp_result);
 
   /* Create byte sequence P.  */
-  cp = p_bytes = (char *) alloca (key_len);
+  cp = p_bytes;
   for (cnt = key_len; cnt >= 32; cnt -= 32){
     memcpy (cp, temp_result, 32);
     cp += 32;
@@ -456,7 +461,7 @@ sha256_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   sha256_finish_ctx (&alt_ctx, temp_result);
 
   /* Create byte sequence S.  */
-  cp = s_bytes = (char *) alloca (salt_len);
+  cp = s_bytes;
   for (cnt = salt_len; cnt >= 32; cnt -= 32){
     memcpy (cp, temp_result, 32);
     cp += 32;
@@ -547,51 +552,26 @@ sha256_crypt_r (const char *key, const char *salt, char *buffer, int buflen)
   else
     *cp = '\0';		/* Terminate the string.  */
 
-  /* Clear the buffer for the intermediate result so that people
-     attaching to processes or reading core dumps cannot get any
-     information.  We do it in this way to clear correct_words[]
-     inside the SHA256 implementation as well.  */
+  /* Clear the buffers holding intermediate results and the password so
+     that people attaching to processes or reading core dumps cannot get
+     any information.  The init/finish pair clears the state inside the
+     SHA256 implementation as well.  secure_wipe() cannot be optimised
+     away, unlike the memset() calls in the reference implementation.  */
   sha256_init_ctx (&ctx);
   sha256_finish_ctx (&ctx, alt_result);
-  memset (temp_result, '\0', sizeof (temp_result));
-  memset (p_bytes, '\0', key_len);
-  memset (s_bytes, '\0', salt_len);
-  memset (&ctx, '\0', sizeof (ctx));
-  memset (&alt_ctx, '\0', sizeof (alt_ctx));
-  if (copied_key != NULL)
-    memset (copied_key, '\0', key_len);
-  if (copied_salt != NULL)
-    memset (copied_salt, '\0', salt_len);
+  secure_wipe (alt_result, sizeof (alt_result));
+  secure_wipe (temp_result, sizeof (temp_result));
+  secure_wipe (&ctx, sizeof (ctx));
+  secure_wipe (&alt_ctx, sizeof (alt_ctx));
+  secure_wipe (p_bytes, key_len);
+  secure_wipe (s_bytes, salt_len);
+  secure_wipe (copied_key, key_len);
+  secure_wipe (copied_salt, salt_len);
+  free (p_bytes);
+  free (s_bytes);
+  free (copied_key);
+  free (copied_salt);
 
   return buffer;
-}
-
-
-/* This entry point is equivalent to the `crypt' function in Unix
-   libcs.  */
-char *
-sha256_crypt (const char *key, const char *salt)
-{
-  /* We don't want to have an arbitrary limit in the size of the
-     password.  We can compute an upper bound for the size of the
-     result in advance and so we can prepare the buffer we pass to
-     `sha256_crypt_r'.  */
-  static char *buffer;
-  static int buflen;
-  int needed = (sizeof (sha256_salt_prefix) - 1
-		+ sizeof (sha256_rounds_prefix) + 9 + 1
-		+ strlen (salt) + 1 + 43 + 1);
-
-  if (buflen < needed)
-    {
-      char *new_buffer = (char *) realloc (buffer, needed);
-      if (new_buffer == NULL)
-	return NULL;
-
-      buffer = new_buffer;
-      buflen = needed;
-    }
-
-  return sha256_crypt_r (key, salt, buffer, buflen);
 }
 

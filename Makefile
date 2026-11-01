@@ -1,26 +1,18 @@
-all: shacrypt
+all: build
 
 node_modules: package.json
-	@npm install
+	npm install
 
-shacrypt: node_modules src/*
+build: node_modules
+	npm run build
 
-#
-# Tests
-#
-test: shacrypt
-	@./node_modules/.bin/mocha
+test: build
+	npx mocha
 
+clean:
+	rm -rf build prebuilds
 
-#
-# Clean up
-#
+distclean: clean
+	rm -rf node_modules
 
-clean: clean-node
-
-clean-node:
-	@rm -rf node_modules
-
-.PHONY: all
-.PHONY: test
-
+.PHONY: all build test clean distclean

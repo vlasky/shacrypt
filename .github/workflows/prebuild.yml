@@ -1,0 +1,66 @@
+# Builds prebuilt binaries for every supported platform and, on a version tag,
+# publishes the package with them bundled. Publishing needs an NPM_TOKEN
+# repository secret with publish rights to @vlasky/shacrypt.
+name: Prebuild and publish
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  prebuild:
+    name: Prebuild on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest      # linux-x64
+          - ubuntu-24.04-arm   # linux-arm64
+          - macos-15-intel     # darwin-x64
+          - macos-latest       # darwin-arm64
+          - windows-latest     # win32-x64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run prebuildify
+      - name: Check that the prebuilt binary loads and passes the tests
+        run: npx mocha
+        env:
+          # Force node-gyp-build to use prebuilds/ rather than build/Release
+          PREBUILDS_ONLY: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuilds-${{ matrix.os }}
+          path: prebuilds/
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: prebuild
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - uses: actions/download-artifact@v4
+        with:
+          path: prebuilds
+          pattern: prebuilds-*
+          merge-multiple: true
+      - name: List bundled prebuilds
+        run: find prebuilds -type f
+      - run: npm ci --ignore-scripts
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

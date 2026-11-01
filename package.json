@@ -1,24 +1,59 @@
 {
   "name": "@vlasky/shacrypt",
   "description": "Node.js wrapper over sha256-crypt and sha512-crypt functions originally created by Ulrich Drepper https://www.akkadia.org/drepper/SHA-crypt.txt",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "homepage": "https://github.com/vlasky/shacrypt",
   "author": "Vlad Lasky <github@vladlasky.com> (https://github.com/vlasky/)",
   "contributors": [
     "Oleksiy Krivoshey <oleksiyk@gmail.com> (https://github.com/oleksiyk/)"
   ],
-  "main": "shacrypt",
+  "license": "MIT",
+  "keywords": [
+    "sha256-crypt",
+    "sha512-crypt",
+    "sha-crypt",
+    "crypt",
+    "password",
+    "hash",
+    "native",
+    "node-api"
+  ],
+  "main": "shacrypt.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./shacrypt.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "shacrypt.js",
+    "index.d.ts",
+    "binding.gyp",
+    "src/",
+    "prebuilds/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "install": "node-gyp rebuild",
-    "test": "make test"
+    "install": "node-gyp-build",
+    "build": "node-gyp rebuild",
+    "prebuildify": "prebuildify --napi --strip",
+    "pretest": "npm run build",
+    "test": "mocha"
   },
   "dependencies": {
-    "nan": "^2.25.0"
+    "node-addon-api": "^8.9.2",
+    "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
-    "chai": "^6.2.2",
-    "mocha": "^11.3.0"
+    "mocha": "^11.3.0",
+    "prebuildify": "^6.0.1"
   },
   "engines": {
     "node": ">= 18.0.0"
@@ -28,9 +63,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/vlasky/shacrypt.git"
+    "url": "git+https://github.com/vlasky/shacrypt.git"
   },
-  "gypfile": true,
-  "readmeFilename": "README.md",
-  "license": "MIT"
+  "gypfile": true
 }
