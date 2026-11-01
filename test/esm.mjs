@@ -1,3 +1,4 @@
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { sha256crypt, sha512cryptAsync, verify, constants } from '@vlasky/shacrypt';
 import * as namespace from '@vlasky/shacrypt';

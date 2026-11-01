@@ -1,4 +1,0 @@
-{
-  "spec": ["test/tests.js", "test/esm.mjs"],
-  "timeout": 30000
-}

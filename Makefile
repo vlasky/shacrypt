@@ -7,7 +7,7 @@ build: node_modules
 	npm run build
 
 test: build
-	npx mocha
+	node --test test/tests.js test/esm.mjs
 
 clean:
 	rm -rf build prebuilds

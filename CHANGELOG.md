@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Tests run on Node's built-in `node:test` runner instead of Mocha. Mocha was the only remaining development dependency with open security advisories; the test suite itself is unchanged.
+
 ## [0.6.0] - 2026-11-01
 
 ### Security

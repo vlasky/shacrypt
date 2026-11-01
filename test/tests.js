@@ -1,5 +1,6 @@
 'use strict';
 
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const shacrypt = require('../shacrypt');
 
@@ -127,7 +128,7 @@ for (const algo of algorithms) {
       assert.match(hash, new RegExp(`^${algo.escaped}rounds=1500\\$salt\\$`));
     });
 
-    it('returns undefined in callback mode', function (done) {
+    it('returns undefined in callback mode', function (t, done) {
       assert.equal(algo.sync('password', 'salt', done), undefined);
     });
 

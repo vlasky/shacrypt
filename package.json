@@ -45,19 +45,14 @@
     "build": "node-gyp rebuild",
     "prebuildify": "prebuildify --napi --strip",
     "pretest": "npm run build",
-    "test": "mocha"
+    "test": "node --test test/tests.js test/esm.mjs"
   },
   "dependencies": {
     "node-addon-api": "^8.9.2",
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
-    "mocha": "^11.8.0",
     "prebuildify": "^6.0.1"
-  },
-  "overrides": {
-    "glob": "^14.0.3",
-    "minimatch": "^11.0.3"
   },
   "engines": {
     "node": ">= 18.0.0"
